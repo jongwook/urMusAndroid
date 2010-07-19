@@ -17,7 +17,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := urMus
-LOCAL_SRC_FILES := urMus.c	\
+LOCAL_SRC_FILES := urMus.c \
 	lua/lapi.c \
 	lua/lauxlib.c \
 	lua/lbaselib.c \
@@ -47,6 +47,37 @@ LOCAL_SRC_FILES := urMus.c	\
 	lua/ltm.c \
 	lua/lundump.c \
 	lua/lvm.c \
-	lua/lzio.c 
+	lua/lzio.c \
+	libpng/png.c \
+	libpng/pngerror.c \
+	libpng/pngget.c \
+	libpng/pngmem.c \
+	libpng/pngpread.c \
+	libpng/pngrio.c \
+	libpng/pngrtran.c \
+	libpng/pngrutil.c \
+	libpng/pngset.c \
+	libpng/pngtrans.c \
+	libpng/pngwio.c \
+	libpng/pngwrite.c \
+	libpng/pngwtran.c \
+	libpng/pngwutil.c \
+	zlib/adler32.c \
+	zlib/compress.c \
+	zlib/crc32.c \
+	zlib/deflate.c \
+	zlib/gzclose.c \
+	zlib/gzlib.c \
+	zlib/gzread.c \
+	zlib/gzwrite.c \
+	zlib/infback.c \
+	zlib/inffast.c \
+	zlib/inflate.c \
+	zlib/inftrees.c \
+	zlib/trees.c \
+	zlib/uncompr.c \
+	zlib/zutil.c \
+
+# end of source file lists
 
 include $(BUILD_SHARED_LIBRARY)
