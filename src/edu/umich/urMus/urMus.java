@@ -2,6 +2,7 @@ package edu.umich.urMus;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 public class urMus extends Activity
 {
@@ -10,6 +11,15 @@ public class urMus extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        TextView tv=new TextView(this);
+        tv.setText( testString() );
+
+        setContentView(tv);
+    }
+
+    public native String testString();
+
+    static {
+        System.loadLibrary("urMus");
     }
 }
