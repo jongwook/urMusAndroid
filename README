@@ -1,0 +1,20 @@
+urMus for Android
+
+
+To compile :
+
+Assuming that Android SDK tools and Android NDK are installed and added to PATH,
+
+- android update project -p . -t 12
+- ndk-build -C jni
+- android compile
+
+To install :
+
+- android install # install to an android device
+
+
+
+
+http://github.com/jongwook/urMusAndroid
+
