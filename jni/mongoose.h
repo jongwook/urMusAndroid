@@ -25,6 +25,8 @@
 #ifndef MONGOOSE_HEADER_INCLUDED
 #define	MONGOOSE_HEADER_INCLUDED
 
+#include "config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

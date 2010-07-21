@@ -8,15 +8,6 @@
  */
 #include "httpServer.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "lua.h"
-#include "lauxlib.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "mongoose.h"
 #include <pthread.h>
 #include <netinet/in.h>
@@ -306,6 +297,9 @@ http_stop(void)
 }
 
 #if 1
+
+#ifdef TARGET_ANDROID
+#else
 #include <ifaddrs.h>
 const char*
 http_ip_address(void)
@@ -339,6 +333,8 @@ http_ip_address(void)
 	freeifaddrs(interfaces);	
 	return NULL;
 }
+#endif
+
 #else 
 const char* 
 http_ip_address(void) 

@@ -47,6 +47,7 @@ string ofToDataPath(string path, bool makeAbsolute){
 		}
 
 		if(makeAbsolute && path.substr(0,1) != "/"){
+#if 0 // ignore makeAbsolute
 #ifndef TARGET_OF_IPHONE
 #ifndef _MSC_VER
 			char currDir[1024];
@@ -60,6 +61,7 @@ string ofToDataPath(string path, bool makeAbsolute){
 #endif
 #else
 			//do we need iphone specific code here?
+#endif
 #endif
 		}
 
@@ -549,7 +551,7 @@ void urFont::loadFont(string filename, int fontsize, bool _bAntiAliased, bool _b
 
 		//Now we just setup some texture paramaters.
 		glBindTexture( GL_TEXTURE_2D, texNames[i]);
-#ifndef TARGET_OF_IPHONE
+#if (!defined TARGET_OF_IPHONE) && (!defined TARGET_ANDROID)
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 #endif
@@ -566,7 +568,7 @@ void urFont::loadFont(string filename, int fontsize, bool _bAntiAliased, bool _b
 		//that we are using GL_LUMINANCE_ALPHA to indicate that
 		//we are using 2 channel data.
 
-#ifndef TARGET_OF_IPHONE // gluBuild2DMipmaps doesn't seem to exist in anything i had in the iphone build... so i commented it out
+#if (!defined TARGET_OF_IPHONE) && (!defined TARGET_ANDROID) // gluBuild2DMipmaps doesn't seem to exist in anything i had in the iphone build... so i commented it out
 		bool b_use_mipmaps = false;  // FOR now this is fixed to false, could be an option, left in for legacy...
 		if (b_use_mipmaps){
 			gluBuild2DMipmaps(
@@ -692,7 +694,7 @@ void urFont::drawString(string c, float x, float y) {
 	GLfloat		Y		= 0;
 
 	// (a) record the current "alpha state, blend func, etc"
-#ifndef TARGET_OF_IPHONE
+#if (!defined TARGET_OF_IPHONE) && (!defined TARGET_ANDROID)
 	glPushAttrib(GL_COLOR_BUFFER_BIT);
 #else
 	GLboolean blend_enabled = glIsEnabled(GL_BLEND);
@@ -738,7 +740,7 @@ void urFont::drawString(string c, float x, float y) {
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	// (c) return back to the way things were (with blending, blend func, etc)
-#ifndef TARGET_OF_IPHONE
+#if (!defined TARGET_OF_IPHONE) && (!defined TARGET_ANDROID)
 	glPopAttrib();
 #else
 	if( !blend_enabled )

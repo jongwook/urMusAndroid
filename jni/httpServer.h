@@ -13,7 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-  
+
+#include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "lua.h"
+#include "lauxlib.h"
+#ifdef __cplusplus
+}
+#endif 
+ 
 const char *http_ip_address(void);
 const char *http_ip_port(void);
 
@@ -24,7 +35,7 @@ void http_start(const char *web_root, const char *doc_root);
 
 void http_stop(void);
   
-typedef struct lua_State lua_State;
+//typedef struct lua_State lua_State;
 
 // write and execute eval_buffers. These are thread-safe. 
 

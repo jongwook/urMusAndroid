@@ -19,9 +19,13 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := urMus
 
 LOCAL_SRC_FILES := urMus.c \
+	mongoose.c \
+	httpServer.c \
+	urImage.cpp \
+	urTexture.cpp \
+	urFont.cpp \
 
-
-LOCAL_LDLIBS	:= -llog -lGLESv2
+LOCAL_LDLIBS	:= -llog -ldl -lGLESv1_CM
 
 # Lua files
 LOCAL_SRC_FILES += \
@@ -56,6 +60,8 @@ LOCAL_SRC_FILES += \
 	lua/lvm.c \
 	lua/lzio.c 
 	
+LOCAL_CFLAGS += -Ilua/
+	
 # libpng files
 LOCAL_SRC_FILES += \
 	libpng/png.c \
@@ -63,6 +69,7 @@ LOCAL_SRC_FILES += \
 	libpng/pngget.c \
 	libpng/pngmem.c \
 	libpng/pngpread.c \
+	libpng/pngread.c \
 	libpng/pngrio.c \
 	libpng/pngrtran.c \
 	libpng/pngrutil.c \
@@ -72,6 +79,8 @@ LOCAL_SRC_FILES += \
 	libpng/pngwrite.c \
 	libpng/pngwtran.c \
 	libpng/pngwutil.c 
+	
+LOCAL_CFLAGS += -Ilibpng/
 	
 # zlib files
 LOCAL_SRC_FILES += \

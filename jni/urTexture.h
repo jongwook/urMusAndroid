@@ -46,6 +46,31 @@ typedef enum {
    UILineBreakModeMiddleTruncation,
 } UILineBreakMode;
 
+typedef float CGFloat;
+#define CG_INLINE inline
+
+CG_INLINE CGPoint
+CGPointMake(CGFloat x, CGFloat y)
+{
+  CGPoint p; p.x = x; p.y = y; return p;
+}
+
+CG_INLINE CGSize
+CGSizeMake(CGFloat width, CGFloat height)
+{
+  CGSize size; size.width = width; size.height = height; return size;
+}
+
+CG_INLINE CGRect
+CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height)
+{
+  CGRect rect;
+  rect.origin.x = x; rect.origin.y = y;
+  rect.size.width = width; rect.size.height = height;
+  return rect;
+}
+
+
 #else
 	#include <UIKit/UIKit.h>
 #endif

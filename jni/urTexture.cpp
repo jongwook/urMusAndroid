@@ -92,7 +92,7 @@ urTexture::urTexture(const char *str, const char *fontname, unsigned int size, u
 		fonts[key]=font=new urFont();
 		font->loadFont(fontname,size*7/10,true,true,true);
 		if(font->bLoadedOk==false)
-			NSLog(@"Warning : font loading fail - %s",key.c_str());
+			fprintf(stderr,"Warning : font loading fail - %s",key.c_str());
 		
 		font->key=key;
 		font->refCount++;

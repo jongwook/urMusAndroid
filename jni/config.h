@@ -21,7 +21,13 @@
 		#define TARGET_OSX
 	#endif
 #else
-	#define TARGET_LINUX
+	#ifdef ANDROID
+		#define TARGET_ANDROID
+		#define SO_NOSIGPIPE 0
+		#include <stdio.h>
+	#else
+		#define TARGET_LINUX
+	#endif
 #endif
 
 //-------------------------------
@@ -70,6 +76,12 @@
 #if defined(__LITTLE_ENDIAN__)
 #define TARGET_LITTLE_ENDIAN		// intel cpu
 #endif
+#endif
+
+#ifdef TARGET_ANDROID
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+#define GL_BGRA 0x80E1
 #endif
 
 #ifdef TARGET_LINUX
