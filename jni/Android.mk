@@ -18,6 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := urMus
 LOCAL_SRC_FILES := urMus.c
+LOCAL_LDLIBS	:= -llog -lGLESv2
 
 # Lua files
 LOCAL_SRC_FILES += \
