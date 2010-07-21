@@ -1,188 +1,181 @@
+// OpenGL ES 1.0 code
 
-#include <string.h>
 #include <jni.h>
 #include <android/log.h>
+#define LOG_TAG "GLJNI gl_code.cpp"
+
+#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+
+
 #include <GLES/gl.h>
-#include <GLES/glext.h>
 
 #include <stdio.h>
+
 #include <stdlib.h>
 #include <math.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+GLuint texture;
+GLfloat background;
 
-#include "lua/lua.h"
-#include "lua/lualib.h"
-#include "lua/lauxlib.h"
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-/* This is a trivial JNI example where we use a native method
- * to return a new VM String. See the corresponding Java source
- * file located at:
- *
- *   apps/samples/hello-jni/project/src/com/example/HelloJni/HelloJni.java
- */
-jstring
-Java_edu_umich_urMus_urMus_testString( JNIEnv* env,
-                                                  jobject thiz )
-{
-    return (*env)->NewStringUTF(env, "Hello from urMus JNI !");
-}
-
-#define  LOG_TAG    "liburMus"
-#define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#define FIXED_ONE 0x10000
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
     LOGI("GL %s = %s\n", name, v);
 }
 
-static void checkGlError(const char* op) {
-	GLint error;
-    for (error = glGetError(); error; error = glGetError()) {
-        LOGI("after %s() glError (0x%x)\n", op, error);
-    }
-}
-
-static const char gVertexShader[] = 
-"attribute vec4 vPosition;\n"
-"void main() {\n"
-"  gl_Position = vPosition;\n"
-"}\n";
-
-static const char gFragmentShader[] = 
-"precision mediump float;\n"
-"void main() {\n"
-"  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
-"}\n";
-
-/*
-GLuint loadShader(GLenum shaderType, const char* pSource) {
-    GLuint shader = glCreateShader(shaderType);
-    if (shader) {
-        glShaderSource(shader, 1, &pSource, NULL);
-        glCompileShader(shader);
-        GLint compiled = 0;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-        if (!compiled) {
-            GLint infoLen = 0;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-            if (infoLen) {
-                char* buf = (char*) malloc(infoLen);
-                if (buf) {
-                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                    LOGE("Could not compile shader %d:\n%s\n",
-						 shaderType, buf);
-                    free(buf);
-                }
-                glDeleteShader(shader);
-                shader = 0;
-            }
-        }
-    }
-    return shader;
-}
-
-GLuint createProgram(const char* pVertexSource, const char* pFragmentSource) {
-    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, pVertexSource);
-    if (!vertexShader) {
-        return 0;
-    }
+static void gluLookAt(float eyeX, float eyeY, float eyeZ,
+					  float centerX, float centerY, float centerZ, float upX, float upY,
+					  float upZ)
+{
+    // See the OpenGL GLUT documentation for gluLookAt for a description
+    // of the algorithm. We implement it in a straightforward way:
 	
-    GLuint pixelShader = loadShader(GL_FRAGMENT_SHADER, pFragmentSource);
-    if (!pixelShader) {
-        return 0;
-    }
+    float fx = centerX - eyeX;
+    float fy = centerY - eyeY;
+    float fz = centerZ - eyeZ;
 	
-    GLuint program = glCreateProgram();
-    if (program) {
-        glAttachShader(program, vertexShader);
-        checkGlError("glAttachShader");
-        glAttachShader(program, pixelShader);
-        checkGlError("glAttachShader");
-        glLinkProgram(program);
-        GLint linkStatus = GL_FALSE;
-        glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-        if (linkStatus != GL_TRUE) {
-            GLint bufLength = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
-            if (bufLength) {
-                char* buf = (char*) malloc(bufLength);
-                if (buf) {
-                    glGetProgramInfoLog(program, bufLength, NULL, buf);
-                    LOGE("Could not link program:\n%s\n", buf);
-                    free(buf);
-                }
-            }
-            glDeleteProgram(program);
-            program = 0;
-        }
-    }
-    return program;
+    // Normalize f
+    float rlf = 1.0f / sqrtf(fx*fx + fy*fy + fz*fz);
+    fx *= rlf;
+    fy *= rlf;
+    fz *= rlf;
+	
+    // Normalize up
+    float rlup = 1.0f / sqrtf(upX*upX + upY*upY + upZ*upZ);
+    upX *= rlup;
+    upY *= rlup;
+    upZ *= rlup;
+	
+    // compute s = f x up (x means "cross product")
+	
+    float sx = fy * upZ - fz * upY;
+    float sy = fz * upX - fx * upZ;
+    float sz = fx * upY - fy * upX;
+	
+    // compute u = s x f
+    float ux = sy * fz - sz * fy;
+    float uy = sz * fx - sx * fz;
+    float uz = sx * fy - sy * fx;
+	
+    float m[16] ;
+    m[0] = sx;
+    m[1] = ux;
+    m[2] = -fx;
+    m[3] = 0.0f;
+	
+    m[4] = sy;
+    m[5] = uy;
+    m[6] = -fy;
+    m[7] = 0.0f;
+	
+    m[8] = sz;
+    m[9] = uz;
+    m[10] = -fz;
+    m[11] = 0.0f;
+	
+    m[12] = 0.0f;
+    m[13] = 0.0f;
+    m[14] = 0.0f;
+    m[15] = 1.0f;
+	
+    glMultMatrixf(m);
+    glTranslatef(-eyeX, -eyeY, -eyeZ);
 }
-*/
-GLuint gProgram;
-GLuint gvPositionHandle;
 
-int setupGraphics(int w, int h) {
+void init_scene(int width, int height)
+{
     printGLString("Version", GL_VERSION);
     printGLString("Vendor", GL_VENDOR);
     printGLString("Renderer", GL_RENDERER);
     printGLString("Extensions", GL_EXTENSIONS);
-/*	
-    LOGI("setupGraphics(%d, %d)", w, h);
-    gProgram = createProgram(gVertexShader, gFragmentShader);
-    if (!gProgram) {
-        LOGE("Could not create program.");
-        return 0;
-    }
-    gvPositionHandle = glGetAttribLocation(gProgram, "vPosition");
-    checkGlError("glGetAttribLocation");
-    LOGI("glGetAttribLocation(\"vPosition\") = %d\n",
-		 gvPositionHandle);
-*/	
-    glViewport(0, 0, w, h);
-    checkGlError("glViewport");
-    return 1;
+	
+    glDisable(GL_DITHER);
+    glEnable(GL_CULL_FACE);
+	
+    float ratio = width / height;
+    glViewport(0, 0, width, height);
+	
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustumf(-ratio, ratio, -1, 1, 1, 10);
+	
+    glMatrixMode(GL_MODELVIEW);
+	
+    glLoadIdentity();
+    gluLookAt(
+			  0, 0, 3,  // eye
+			  0, 0, 0,  // center
+			  0, 1, 0); // up
+	
+    glEnable(GL_TEXTURE_2D);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-const GLfloat gTriangleVertices[] = { 0.0f, 0.5f, -0.5f, -0.5f,
-	0.5f, -0.5f };
+void create_texture()
+{
+    const unsigned int on = 0xff0000ff;
+    const unsigned int off = 0xffffffff;
+    const unsigned int pixels[] =
+    {
+		on, off, on, off, on, off, on, off,
+		off, on, off, on, off, on, off, on,
+		on, off, on, off, on, off, on, off,
+		off, on, off, on, off, on, off, on,
+		on, off, on, off, on, off, on, off,
+		off, on, off, on, off, on, off, on,
+		on, off, on, off, on, off, on, off,
+		off, on, off, on, off, on, off, on,
+    };
+	
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexEnvx(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+}
 
-void renderFrame() {
+JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_init(JNIEnv * env, jobject obj,  jint width, jint height)
+{
+    init_scene(width, height);
+    create_texture();
+}
+
+JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_step(JNIEnv * env, jobject obj)
+{
+    const GLfloat vertices[] = {
+		-1,  -1,  0,
+		1,  -1,  0,
+		1,   1,  0,
+		-1,   1,  0
+    };
+	
+    const GLfixed texCoords[] = {
+		0,            0,
+		FIXED_ONE,    0,
+		FIXED_ONE,    FIXED_ONE,
+		0,            FIXED_ONE
+    };
+	
+    const GLushort quadIndices[] = { 0, 1, 2,  0, 2, 3 };
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FIXED, 0, texCoords);
+	
+    int nelem = sizeof(quadIndices)/sizeof(quadIndices[0]);
     static float grey;
     grey += 0.01f;
     if (grey > 1.0f) {
         grey = 0.0f;
     }
-    glClearColor(grey, grey, grey, 1.0f);
-    checkGlError("glClearColor");
-    glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    checkGlError("glClear");
-	
-//    glUseProgram(gProgram);
-//    checkGlError("glUseProgram");
-	
-//    glVertexAttribPointer(gvPositionHandle, 2, GL_FLOAT, GL_FALSE, 0, gTriangleVertices);
-//    checkGlError("glVertexAttribPointer");
-//    glEnableVertexAttribArray(gvPositionHandle);
-//    checkGlError("glEnableVertexAttribArray");
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    checkGlError("glDrawArrays");
+    glClearColor(background, grey, grey, 1.0f);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glDrawElements(GL_TRIANGLES, nelem, GL_UNSIGNED_SHORT, quadIndices);
 }
 
-JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_init(JNIEnv * env, jobject obj,  jint width, jint height)
+JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_changeBackground(JNIEnv * env, jobject obj)
 {
-    setupGraphics(width, height);
-}
-
-JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_step(JNIEnv * env, jobject obj)
-{
-    renderFrame();
+    background = 1.0f - background;
 }

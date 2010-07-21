@@ -13,11 +13,8 @@ public class urMus extends Activity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        TextView tv=new TextView(this);
-        tv.setText( testString() );
-
-//        setContentView(tv);
 		mView = new urMusView(getApplication());
+		mView.setFocusableInTouchMode(true);
 		setContentView(mView);
     }
 
@@ -31,9 +28,9 @@ public class urMus extends Activity
         mView.onResume();
     }
 	
-    public native String testString();
 	public static native void init(int width, int height);
 	public static native void step();
+	public static native void changeBackground();
 
     static {
         System.loadLibrary("urMus");
