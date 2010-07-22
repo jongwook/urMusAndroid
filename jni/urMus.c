@@ -99,35 +99,36 @@ void init_scene(int width, int height)
 	
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustumf(-ratio, ratio, -1, 1, 1, 10);
-	
+	glOrthof(0.0f, width, 0.0f, height, -1.0f, 1.0f);
     glMatrixMode(GL_MODELVIEW);
 	
     glLoadIdentity();
-    gluLookAt(
+/*    gluLookAt(
 			  0, 0, 3,  // eye
 			  0, 0, 0,  // center
 			  0, 1, 0); // up
-	
+*/	
     glEnable(GL_TEXTURE_2D);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	LOGI("init_scene(%d,%d)\n",width,height);
 }
 
 void create_texture()
 {
-    const unsigned int on = 0xff0000ff;
+    const unsigned int on = 0xffff9966;
     const unsigned int off = 0xffffffff;
     const unsigned int pixels[] =
     {
-		on, off, on, off, on, off, on, off,
-		off, on, off, on, off, on, off, on,
-		on, off, on, off, on, off, on, off,
-		off, on, off, on, off, on, off, on,
-		on, off, on, off, on, off, on, off,
-		off, on, off, on, off, on, off, on,
-		on, off, on, off, on, off, on, off,
-		off, on, off, on, off, on, off, on,
+		 on, off, off, off, off, off,  on, off,
+		off, off, off, off, off, off, off,  on,
+		off, off, off, off, off, off, off, off,
+		off, off, off, off, off, off, off, off,
+		off, off, off, off, off, off, off, off,
+		off, off, off, off, off, off, off, off,
+		 on, off, off, off, off, off,  on,  on,
+		 on,  on, off, off, off, off,  on,  on,
     };
 	
     glGenTextures(1, &texture);
@@ -147,10 +148,10 @@ JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_init(JNIEnv * env, jobject obj
 JNIEXPORT void JNICALL Java_edu_umich_urMus_urMus_step(JNIEnv * env, jobject obj)
 {
     const GLfloat vertices[] = {
-		-1,  -1,  0,
-		1,  -1,  0,
-		1,   1,  0,
-		-1,   1,  0
+		100,  100,  0,
+		300,  100,  0,
+		300,  300,  0,
+		100,  300,  0
     };
 	
     const GLfixed texCoords[] = {
